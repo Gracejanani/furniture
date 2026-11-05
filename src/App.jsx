@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Heart, Menu, Search, ShoppingBag, Star, Truck, ShieldCheck, Headphones, X, Plus, Minus, CheckCircle2 } from "lucide-react";
 import { categories, products, imageUrl } from "./data";
+import Admin from "./Admin";
 
 function Header({ cartCount, onCart }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,6 +34,7 @@ function CartDrawer({ items, onClose, onChange }) {
 }
 
 export default function App() {
+  if (window.location.pathname.startsWith("/admin")) return <Admin />;
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
