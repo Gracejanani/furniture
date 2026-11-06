@@ -36,7 +36,6 @@ function CartDrawer({ items, onClose, onChange }) {
 }
 
 export default function App() {
-  if (window.location.pathname.startsWith("/admin")) return <Admin />;
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
