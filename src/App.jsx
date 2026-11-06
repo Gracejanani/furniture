@@ -35,14 +35,15 @@ function CartDrawer({ items, onClose, onChange }) {
   </aside></div>;
 }
 
-export default function App() {
+function Storefront({ productsOverride }) {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [slide, setSlide] = useState(0);
-  const productSource = productsOverride ?? products;\n  const filtered = useMemo(() => activeCategory === "All" ? productSource : productSource.filter(p => p.category === activeCategory), [activeCategory, productSource]);
+  const productSource = productsOverride ?? products;
+  const filtered = useMemo(() => activeCategory === "All" ? productSource : productSource.filter(p => p.category === activeCategory), [activeCategory, productSource]);
   const addToCart = product => { setCart(old => { const found = old.find(x => x.id === product.id); return found ? old.map(x => x.id === product.id ? {...x, qty:x.qty+1} : x) : [...old, {...product, qty:1}]; }); setCartOpen(true); };
   const changeQty = (id, delta) => setCart(old => old.map(x => x.id === id ? {...x, qty:x.qty+delta} : x).filter(x => x.qty > 0));
   const count = cart.reduce((n, x) => n + x.qty, 0);
