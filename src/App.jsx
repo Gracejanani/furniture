@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "convex/react";
+import { anyApi } from "convex/server";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Heart, Menu, Search, ShoppingBag, Star, Truck, ShieldCheck, Headphones, X, Plus, Minus, CheckCircle2 } from "lucide-react";
 import { categories, products, imageUrl } from "./data";
 import Admin from "./Admin";
@@ -41,7 +43,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [slide, setSlide] = useState(0);
-  const filtered = useMemo(() => activeCategory === "All" ? products : products.filter(p => p.category === activeCategory), [activeCategory]);
+  const productSource = productsOverride ?? products;\n  const filtered = useMemo(() => activeCategory === "All" ? productSource : productSource.filter(p => p.category === activeCategory), [activeCategory, productSource]);
   const addToCart = product => { setCart(old => { const found = old.find(x => x.id === product.id); return found ? old.map(x => x.id === product.id ? {...x, qty:x.qty+1} : x) : [...old, {...product, qty:1}]; }); setCartOpen(true); };
   const changeQty = (id, delta) => setCart(old => old.map(x => x.id === id ? {...x, qty:x.qty+delta} : x).filter(x => x.qty > 0));
   const count = cart.reduce((n, x) => n + x.qty, 0);
@@ -69,4 +71,14 @@ export default function App() {
     <footer><div className="footer-top"><a className="brand footer-brand" href="#"><span className="brand-mark">R</span><span>RESTORA<small>COMFORT, BEAUTIFULLY MADE</small></span></a><p>Make space for the good stuff.<br/>Make room for comfort.</p><div className="footer-links"><div><b>EXPLORE</b><a href="#shop">Mattresses</a><a href="#shop">Beds & furniture</a><a href="#shop">Sofas & recliners</a><a href="#collections">All collections</a></div><div><b>WE'RE HERE</b><a href="#business">Contact us</a><a href="#business">Store locator</a><a href="#why">Our story</a><a href="#stories">Journal</a></div><div><b>THE DETAILS</b><a href="#footer">Shipping policy</a><a href="#footer">Returns & refunds</a><a href="#footer">Privacy policy</a><a href="#footer">Terms of use</a></div></div></div><div className="footer-bottom"><span>© 2026 RESTORA. ALL RIGHTS RESERVED.</span><span>MADE WITH CARE, FOR BETTER LIVING.</span><span>INSTAGRAM　 PINTEREST　 FACEBOOK</span></div></footer>
     {cartOpen&&<CartDrawer items={cart} onClose={()=>setCartOpen(false)} onChange={changeQty}/>}
   </div>;
+}
+function ConnectedStorefront() {
+  const rows = useQuery(anyApi.products.featured, {});
+  const liveProducts = rows?.map((p) => ({ id: p._id, name: p.name, category: p.category, price: p.price, oldPrice: p.compareAtPrice ?? p.price, tag: p.tags?.[0] ?? (p.featured ? "FEATURED" : "NEW"), rating: 4.7, image: p.images?.[0] ?? "photo-1505693416388-ac5ce068fe85", tone: p.description ?? "Thoughtfully designed comfort" })) ?? [];
+  return <Storefront productsOverride={rows === undefined || rows.length === 0 ? products : liveProducts} />;
+}
+
+export default function App() {
+  if (window.location.pathname.startsWith("/admin")) return <Admin />;
+  return import.meta.env.VITE_CONVEX_URL ? <ConnectedStorefront /> : <Storefront />;
 }
